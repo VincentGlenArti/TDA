@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5FDA0CB2-A341-489D-895D-76E271C3341A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DiscController</RootNamespace>
+    <AssemblyName>DiscController</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdditionalClasses.cs" />
+    <Compile Include="DiscController.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DiscController.Designer.cs">
+      <DependentUpon>DiscController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="lang.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>lang.resx</DependentUpon>
+    </Compile>
+    <Compile Include="FileTagAdder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FileTagAdder.Designer.cs">
+      <DependentUpon>FileTagAdder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewTagAdder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewTagAdder.Designer.cs">
+      <DependentUpon>NewTagAdder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="lang.ru.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>lang.ru.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\archivelist\archivelist.csproj">
+      <Project>{10df255b-c683-46cf-9763-b7af00569e90}</Project>
+      <Name>archivelist</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\archive\archive.csproj">
+      <Project>{d288cde4-42a0-4343-83db-1a4146817a27}</Project>
+      <Name>archive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\domain\disc.csproj">
+      <Project>{0edc2e60-fd4e-4639-a35b-9b786b1788d0}</Project>
+      <Name>disc</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\tagfield\tagfield\tagfield.csproj">
+      <Project>{f4e46e6b-5f60-4eb7-89e1-e94f6c564af2}</Project>
+      <Name>tagfield</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DiscController.resx">
+      <DependentUpon>DiscController.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lang.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>lang.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lang.ru.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>lang.ru.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FileTagAdder.resx">
+      <DependentUpon>FileTagAdder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewTagAdder.resx">
+      <DependentUpon>NewTagAdder.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
