@@ -38,6 +38,7 @@ namespace TDA
         public UInt64 PicID;
         public UInt64 ArchiveID;
         public LinkedList<UInt64> tags;
+        public string Name;
     }
 
     public delegate System.IO.Compression.ZipArchive ReopenSelf(UInt64 ArchiveID);
@@ -63,6 +64,26 @@ namespace TDA
         {
             PicInfoReady = false;
             initialized = false;
+        }
+
+        public System.Drawing.Bitmap GetPicture(UInt64 ID)
+        {
+            System.Drawing.Bitmap Target = null;
+            if (this.initialized)
+            {
+                try
+                {
+                    using (var str = this.file.GetEntry(ID.ToString()).Open())
+                    {
+                        Target = new System.Drawing.Bitmap(str);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Target = null;
+                }
+            }
+            return Target;
         }
 
         public int Initialize(System.IO.Stream archiveFile, System.IO.Stream metaFile)
@@ -175,6 +196,7 @@ namespace TDA
                     inserter = new QuerryMatch();
                     inserter.PicID = Pic.ID;
                     inserter.tags = Pic.tags;
+                    inserter.Name = Pic.fileName;
                     Target.AddLast(inserter);
                 }
                 foreach (Querry search in Request)
@@ -226,32 +248,30 @@ namespace TDA
         private LinkedList<QuerryMatch> applyInclusiveQuerry(LinkedList<QuerryMatch> Target, UInt64 TargetTag)
         {
             LinkedListNode<QuerryMatch> searcher = Target.First;
-            bool apply_next = true;
             bool tag_met = false;
-            for (int i = 1; i < Target.Count; i++)
+            int count = Target.Count;
+            while(searcher != null)
             {
-                apply_next = true;
                 tag_met = false;
-                if (i < (Target.Count - 1)) apply_next = false;
                 foreach (UInt64 tag in searcher.Value.tags)
                 {
-                    if (tag == TargetTag) tag_met = true;
+                    if (tag == TargetTag) 
+                        tag_met = true;
                 }
-                if(!tag_met)
+                if (!tag_met)
                 {
                     if (searcher != Target.Last)
                     {
-                        apply_next = false;
                         searcher = searcher.Next;
                         Target.Remove(searcher.Previous);
                     }
                     else
                     {
                         Target.Remove(searcher);
+                        searcher = null;
                     }
                 }
-                if (searcher == Target.Last) break;
-                if (apply_next) searcher = searcher.Next;
+                else searcher = searcher.Next;
             }
             return (Target);
         }
@@ -259,31 +279,68 @@ namespace TDA
         private LinkedList<QuerryMatch> applyExclusiveQuerry(LinkedList<QuerryMatch> Target, UInt64 TargetTag)
         {
             LinkedListNode<QuerryMatch> searcher = Target.First;
-            bool apply_next = true;
-            for (int i = 1; i < Target.Count; i++)
+            bool TagMet = false;
+            while (searcher != null)
             {
-                apply_next = true;
+                TagMet = false;
                 foreach (UInt64 tag in searcher.Value.tags)
                 {
                     if (tag == TargetTag)
                     {
-                        if(searcher != Target.Last)
-                        {
-                            apply_next = false;
-                            searcher = searcher.Next;
-                            Target.Remove(searcher.Previous);
-                        }
-                        else
-                        {
-                            Target.Remove(searcher);
-                        }
+                        TagMet = true;
                         break;
                     }
                 }
-                if (searcher == Target.Last) break;
-                if (apply_next) searcher = searcher.Next;
+                if (TagMet)
+                {
+                    if (searcher != Target.Last)
+                    {
+                        searcher = searcher.Next;
+                        Target.Remove(searcher.Previous);
+                    }
+                    else
+                    {
+                        Target.Remove(searcher);
+                        searcher = null;
+                    }
+                }
+                else searcher = searcher.Next;
             }
             return (Target);
+        }
+
+        public void PurgeTag(UInt64 TagID, System.IO.Stream MetaFile)
+        {
+            LinkedListNode<UInt64> ptr;
+            bool Overwrite = false;
+            if (this.PicInfoReady)
+            {
+                foreach (PicInfo pic in Content)
+                {
+                    Overwrite = false;
+                    ptr = pic.tags.First;
+                    while(ptr != null)
+                    {
+                        if (ptr.Value == TagID)
+                        {
+                            Overwrite = true;
+                            if (ptr != pic.tags.Last)
+                            {
+                                ptr = ptr.Next;
+                                pic.tags.Remove(ptr.Previous);
+                            }
+                            else
+                            {
+                                pic.tags.Remove(ptr);
+                                ptr = null;
+                            }
+                        }
+                        else ptr = ptr.Next;
+                    }
+                }
+                if (Overwrite) this.writeMetaToFile(MetaFile);
+                MetaFile.Close();
+            }
         }
 
         private int readMetaFromFile(System.IO.Stream metaFile)
@@ -313,16 +370,16 @@ namespace TDA
         private int writeMetaToFile(System.IO.Stream str)
         {
             System.IO.StreamWriter strw = new System.IO.StreamWriter(str);
-            strw.WriteLine(nextPicID);
+            strw.Write(nextPicID);
             foreach (PicInfo node in Content)
             {
+                strw.WriteLine();
                 strw.Write(node.ID.ToString());
                 if (node.fileName != null) strw.Write(" " + node.fileName);
                 foreach (UInt64 tag in node.tags)
                 {
                     strw.Write(" " + tag.ToString());
                 }
-                strw.WriteLine();
             }
             strw.Flush();
             str.Close();

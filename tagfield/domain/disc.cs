@@ -25,7 +25,10 @@ namespace TDA
         public UInt64 ArchiveID;
         public UInt64 PictureID;
         public LinkedList<UInt64> Tags;
+        public string Name;
     }
+
+
 
     public class Disc
     {
@@ -66,6 +69,12 @@ namespace TDA
                         inserter.ArchiveID = SearchResult.ElementAt(i).ArchiveID;
                         inserter.PictureID = SearchResult.ElementAt(i).PicID;
                         inserter.Tags = SearchResult.ElementAt(i).tags;
+                        inserter.Name = SearchResult.ElementAt(i).Name;
+                        inserter.preview = archivelist.GetPicture(inserter.ArchiveID, inserter.PictureID, this.file);
+                        if (inserter.preview == null)
+                        {
+                            inserter.preview = new Bitmap(@"Image/NotAnImage.png");
+                        }
                         Target.AddLast(inserter);
                     }
                 }
@@ -112,16 +121,20 @@ namespace TDA
             return(returner);
         }
 
-        public LinkedList<QuerryMatch> Search(LinkedList<Querry> Search)
+        public void Search(LinkedList<Querry> Search)
         {
-            return this.archivelist.SearchForPictures(Search, new ReopenSelf(this.ArchiveReopenSelfAndReturn));
+            SearchResult = this.archivelist.SearchForPictures(Search, this.file);;
         }
 
         public int DeleteTag(TagField.TagNode tag)
         {
-            int returner = this.tags.removeTag(tag.name);
+            int returner = this.tags.removeTag(tag);
             this.UpdateTags();
-            //if returner == 0 remove from files
+            if (returner == 0)
+            {
+                archivelist.PurgeArchivesFromTag(tag.ID, new GetMetafile(this.GetArchiveMetaStream));
+                this.ReopenFile();
+            }
             return (returner);
         }
 

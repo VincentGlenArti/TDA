@@ -263,6 +263,15 @@
   <data name="RMB_CLICK_2_Remove" xml:space="preserve">
     <value>Убрать</value>
   </data>
+  <data name="RMB_CLICK_3_Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="RMB_CLICK_3_Edit_tags" xml:space="preserve">
+    <value>Редактировать тэги</value>
+  </data>
+  <data name="RMB_CLICK_3_Save_as" xml:space="preserve">
+    <value>Сохранить как</value>
+  </data>
   <data name="Tab1" xml:space="preserve">
     <value>Тэги</value>
   </data>

@@ -22,17 +22,40 @@ namespace DiscController
         private LinkedList<TDA.PictureNode> Pictures;
         private string search;
         private int PageSize;
+        private int _Page;
+        
+        private int Page
+        {
+            get { return _Page; }
+            set 
+            {
+                int? NumberOfPages = this.file.NumberOfPages(PageSize);
+                if (NumberOfPages == null) _Page = 0;
+                else if (NumberOfPages == 0) _Page = 0;
+                else
+                {
+                    if (NumberOfPages > value)
+                        if (value >= 0)
+                            _Page = value;
+                        else _Page = 0;
+                    else _Page = (int)NumberOfPages - 1;
+                    UpdatePictureArea();
+                }
+                this.label1.Text = _Page.ToString();
+            }
+        }
 
         public DiscController(string filepath, bool newfile)
         {
             this.filepath = filepath;
             this.newfile = newfile;
+            PageSize = 0;
+            _Page = 0;
             InitializeComponent();
         }
 
         private void DiscController_Load(object sender, EventArgs e)
         {
-            this.comboBox1.SelectedItem = this.comboBox1.Items[0];
             this.ApplyLocalization();
             try
             {
@@ -48,11 +71,13 @@ namespace DiscController
                 this.Close();
                 return;
             }
+            this.comboBox1.SelectedItem = this.comboBox1.Items[0];
             this.ActiveTags = new LinkedList<ActiveTagNode>();
             this.Tags = new LinkedList<MainTagNode>();
             this.search = "";
             this.SearchTagField(search);
             this.UpdateActiveTagArea();
+            PageSize = int.Parse(this.comboBox1.SelectedItem.ToString());
         }
 
         private void SearchTagField(string request)
@@ -112,10 +137,8 @@ namespace DiscController
             if (this.ActiveTags.Count == 0)
             {
                 listView3.Items.Add(lang.NO_ACTIVE_TAGS);
-                listView3.Update();
-                return;
             }
-            foreach (ActiveTagNode node in ActiveTags)
+            else foreach (ActiveTagNode node in ActiveTags)
             {
                 listView3.Items.Add(node.ToString());
             }
@@ -137,8 +160,8 @@ namespace DiscController
                     Search.AddLast(Inserter);
                 }
                 this.file.Search(Search);
-                Pictures = this.file.GetPage(this.PageSize, 0);
             }
+            Page = 0;
         }
 
         private void UpdateTagArea()
@@ -159,6 +182,27 @@ namespace DiscController
                 listView2.Items.Add(lang.All_tags_are_active);
             }
             listView2.Update();
+        }
+
+        private void UpdatePictureArea()
+        {
+            Pictures = this.file.GetPage(this.PageSize, Page);
+            listView1.Items.Clear();
+            imageList1 = new ImageList();
+            imageList1.ImageSize = new Size(150, 150);
+            if (Pictures != null)
+            {
+                foreach (var Pic in Pictures)
+                {
+                    imageList1.Images.Add(Pic.preview);
+                }
+            }
+            listView1.LargeImageList = imageList1;
+            for (int i = 0; i < imageList1.Images.Count; i++ )
+            {
+                listView1.Items.Add(new ListViewItem() { ImageIndex = i });
+            }
+            listView1.Update();
         }
 
         private void ApplyLocalization()
@@ -188,19 +232,10 @@ namespace DiscController
             this.deleteToolStripMenuItem.Text = lang.RMB_CLICK_1_Delete;
             this.addNewToolStripMenuItem.Text = lang.RMB_CLICK_1_AddNew;
             this.removeToolStripMenuItem.Text = lang.RMB_CLICK_2_Remove;
-            //this.changeSearchOptionToolStripMenuItem.Text = lang.RMB_CLICK_2_ChangeSearchOption;
             this.contextMenuStrip1.Items[0].Text = lang.This_is_not_a_tag;
-            //this.searchToolStripMenuItem.Text = lang.MENU
-        }
-
-        private void arminToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
+            this.saveAsToolStripMenuItem.Text = lang.RMB_CLICK_3_Save_as;
+            this.deleteToolStripMenuItem1.Text = lang.RMB_CLICK_3_Delete;
+            this.editTagsToolStripMenuItem.Text = lang.RMB_CLICK_3_Edit_tags;
         }
 
         private void listView2_ItemActivate(object sender, EventArgs e)
@@ -501,6 +536,54 @@ namespace DiscController
                 }
                 this.CommenceFileSearch();
             }
+        }
+
+        private void listView1_ItemActivate(object sender, EventArgs e)
+        {
+            int selection = ((ListView)sender).SelectedItems[0].Index;
+            contextMenuStrip3.Items[0].Text = selection.ToString();
+            contextMenuStrip3.Show(Cursor.Position);
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.IO.Stream WriteStream;
+            int selection = int.Parse(contextMenuStrip3.Items[0].Text);
+            var Target = Pictures.ElementAt(selection).preview;
+            var Name = Pictures.ElementAt(selection).Name;
+            string[] Splitter = Name.Split('.');
+            string Ext;
+            if (Splitter.Length == 1) Ext = "";
+            else Ext = Splitter[Splitter.Length - 1];
+            saveFileDialog1.DefaultExt = Ext;
+            saveFileDialog1.FileName = Name;
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                if ((WriteStream = saveFileDialog1.OpenFile()) != null)
+                {
+                    using (Bitmap cpy = new Bitmap(Target))
+                    {
+                        cpy.Save(WriteStream, Target.RawFormat);
+                        WriteStream.Close();
+                    }
+                }
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            PageSize = int.Parse(this.comboBox1.SelectedItem.ToString());
+            Page = 0;
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Page = Page + 1;
+        }
+
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Page = Page - 1;
         }
 
     }

@@ -495,6 +495,33 @@ namespace DiscController {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Delete.
+        /// </summary>
+        internal static string RMB_CLICK_3_Delete {
+            get {
+                return ResourceManager.GetString("RMB_CLICK_3_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Edit Tags.
+        /// </summary>
+        internal static string RMB_CLICK_3_Edit_tags {
+            get {
+                return ResourceManager.GetString("RMB_CLICK_3_Edit_tags", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Save as.
+        /// </summary>
+        internal static string RMB_CLICK_3_Save_as {
+            get {
+                return ResourceManager.GetString("RMB_CLICK_3_Save_as", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Tags.
         /// </summary>
         internal static string Tab1 {

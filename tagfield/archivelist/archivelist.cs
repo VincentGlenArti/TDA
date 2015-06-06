@@ -35,12 +35,31 @@ namespace TDA
         public LinkedList<QuerryMatch> SearchForPictures(LinkedList<Querry> Search, System.IO.Compression.ZipArchive parrent)
         {
             LinkedList<QuerryMatch> Target = new LinkedList<QuerryMatch>();
+            LinkedList<QuerryMatch> Result;
             foreach (ArchiveListNode Archive in this.archives)
             {
                 if (!Archive.file.initialized) Archive.file.Initialize(parrent.GetEntry(Archive.ID.ToString() + parameters.archivelist_parameters.archive_extension).Open());
-                Target.Concat<QuerryMatch>(Archive.file.searchThisArchive(Search));
+                Result = Archive.file.searchThisArchive(Search);
+                foreach (var item in Result)
+                {
+                    var ins = new QuerryMatch();
+                    ins.Name = item.Name;
+                    ins.PicID = item.PicID;
+                    ins.tags = item.tags;
+                    ins.ArchiveID = Archive.ID;
+                    Target.AddLast(ins);
+                }
                 Archive.file.Uninitialize();
             }
+            return Target;
+        }
+
+        public System.Drawing.Bitmap GetPicture(UInt64 ArchiveID, UInt64 Picture, System.IO.Compression.ZipArchive parrent)
+        {
+            var Archive = this.archives.FirstOrDefault<ArchiveListNode>(x => x.ID == ArchiveID);
+            Archive.file.Initialize(parrent.GetEntry(Archive.ID.ToString() + parameters.archivelist_parameters.archive_extension).Open());
+            System.Drawing.Bitmap Target = Archive.file.GetPicture(Picture);
+            Archive.file.Uninitialize();
             return Target;
         }
 
@@ -156,6 +175,14 @@ namespace TDA
             }
             this.writeToFile(writer());
             return (0);
+        }
+
+        public void PurgeArchivesFromTag(UInt64 TagID, GetMetafile MetaWriter)
+        {
+            foreach (ArchiveListNode node in archives)
+            {
+                node.file.PurgeTag(TagID, MetaWriter(node.ID));
+            }
         }
 
         public int initializeArchives(System.IO.Compression.ZipArchive parrent)

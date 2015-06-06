@@ -137,14 +137,14 @@ namespace TDA
             return (0);
         }
 
-        public int removeTag(string input)
+        public int removeTag(TagNode input)
         {
             if (tags.Count != 0)
             {
                 LinkedListNode<TagNode> index = tags.First;
                 while(true)
                 {
-                    if (index.Value.name == input)
+                    if (index.Value.name == input.name && index.Value.ID == input.ID)
                     {
                         tags.Remove(index);
                         return (0);
